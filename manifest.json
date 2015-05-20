@@ -11,6 +11,6 @@
 			"http://teamportal/sites/admin/Culinary/Lists/Menu%20Items/Simplified.aspx"
 		],
 		"css": ["enhancement.css"],
-		"js": ["jquery-2.1.3.min.js", "menu.js"]
+		"js": ["menu.js"]
 	}]
 }

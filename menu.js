@@ -3,8 +3,11 @@
 	check it before run to get food
 **/
 
-$(document.body).ready(startEnhancement);
+startEnhancement();
 
+function $(cssSelector) {
+	return document.querySelectorAll(cssSelector);
+}
 
 function startEnhancement(){
 	var node = $("table[summary] td:nth-child(2)");
