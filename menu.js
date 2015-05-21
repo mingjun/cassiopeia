@@ -16,14 +16,38 @@ function startEnhancement(){
 	// collection text in the item.
 	for(var i=0;i<node.length; i++) {
 		var n = node[i];
-		menu.push(n.innerHTML);
+		menu.push(normalizeText(unencodeHtmlContent(n)));
 	}
 	
+	var xhrInfoList = [];
 	// sent out a bunch of query to translate all items in the menu.
 	for(start = 0; start < menu.length; start = o.endIndex) {
 		var o = buildQueryString(menu, start);
-		queryGoogleTranslation(o.params, start, o.endIndex, updateMenu, handleError);	
+		xhrInfoList.push({
+			params: o.params, 
+			start: start,
+			end: o.endIndex
+		});
 	}
+	chainQuerys(xhrInfoList);
+}
+
+// avoid to be banned by google translate website, act more like human :)
+// send out xhr query one after another.
+function chainQuerys(xhrInfoList) {
+	function step(index) {
+		if(index >= xhrInfoList.length) {
+			return;
+		}
+		var o = xhrInfoList[index];
+		queryGoogleTranslation(o.params, o.start, o.end, 
+			function() {
+				updateMenu.apply({}, arguments);
+				step(index + 1);
+			}, 
+			handleError);
+	}
+	step(0);
 }
 
 // build the query string for google translation
@@ -36,7 +60,7 @@ function buildQueryString(menu, start) {
 	var len = defaultParams.length + 3;
 	var endIndex;
 	for(var i=start;i<menu.length;i++) {
-		var m = menu[i].replace(/ +/g, "%20");
+		var m = escape(menu[i]);
 		len += m.length + 3;
 		// the URL length limit is 2048 byte.
 		// other items will be translate in the next query
@@ -97,12 +121,37 @@ function updateMenu(trans, start, end) {
 		var n = node[i];
 		var pair = trans[i - start]; // trans array index start from 0
 		// format of pair: ["chinese text", "original text"]
+		var english = (pair[1] || "").trim();
+		var original = normalizeText(unencodeHtmlContent(n));
+		var chinese = (pair[0] || "").trim();
+		
+		if(original.trim() !== english) {
+			continue;
+		}
 		n.innerHTML = "\
 			<div class='mxx-i18n'>\
 				<div class='mxx-en'>" + n.innerHTML + "</div>\
-				<div class='mxx-cn'>" + pair[0] + "</div>\
+				<div class='mxx-cn'>" + chinese + "</div>\
 			</div>";
 	}
+}
+
+// there may be some HTML encoded chars e.g. &nbsp &lt 
+// we don't want to translate them until decoded.
+function unencodeHtmlContent(node) {
+  var buff = [];
+  var children = node.childNodes;
+  // Chrome splits innerHTML into many child nodes, each one at most 65536.
+  // Whereas FF creates just one single huge child node.
+  for (var i = 0; i < children.length; ++i) {
+    buff.push(children[i].nodeValue);
+  }
+  return buff.join("");
+}
+
+// some char is not needed to translate. remove them.
+function normalizeText(str) {
+	return str.replace(/\s+/g, " ");
 }
 
 //naiive handler
