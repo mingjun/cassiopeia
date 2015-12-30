@@ -52,9 +52,8 @@ function chainQuerys(xhrInfoList) {
 
 // build the query string for google translation
 function buildQueryString(menu, start) {
-	var defaultParams = "client=t&sl=en&tl=zh-CN&hl=zh-CN&dt=bd&dt=ex\
-		&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&ie=UTF-8\
-		&oe=UTF-8&source=btn&ssel=0&tsel=0&kc=14&tk=521156|153327";
+	var defaultParams = 
+		"client=t&sl=en&tl=zh-CN&hl=zh-CN&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&ie=UTF-8&oe=UTF-8&source=btn&ssel=0&tsel=0&kc=0";
 	
 	var buff = [];
 	var len = defaultParams.length + 3;
@@ -75,9 +74,10 @@ function buildQueryString(menu, start) {
 		endIndex = i;
 	}
 	
+	var str = buff.join("%0A");
 	return {
 		endIndex: endIndex,
-		params: defaultParams + "&q=" + buff.join("%0A")
+		params: defaultParams + getCheckSumParameter(unescape(str)) + "&q=" +str
 	};
 }
 
@@ -157,4 +157,62 @@ function normalizeText(str) {
 //naiive handler
 function handleError(key, moreInfo, more2) {
 	console.log(key, moreInfo, more2);
+}
+
+// google API update, a CheckSum algorthm is used for string to translate
+// example: <other_para>&tk=957625.572030&q=<str>
+// this piece of code is mostly comming from https://translate.google.com/translate/releases/twsfe_w_20151214_RC03/r/js/desktop_module_main.js
+// reference: https://github.com/soimort/translate-shell/issues/94 
+function getCheckSumParameter(str) {
+
+	var cb="&",k="",mf="=",Vb="+-a^+6",Ub="+-3^+b+-f",t="a",Tb="+",dd=".",
+	QL=function(a){
+			return function(){return a;}
+	},
+	RL=function(a,b){
+		for(var c=0;c<b.length-2;c+=3){
+			var d = b.charAt(c+2);
+			d =  d>=t ?  d.charCodeAt(0)-87  :  Number(d);
+			d =  b.charAt(c+1)==Tb  ?  a>>>d  :  a<<d;
+			a =  b.charAt(c)==Tb  ? a+d&4294967295  :  a^d;
+		}
+		return a;
+	},
+	SL=null,
+	TL=function(a) {
+		var b;
+		if (null  === SL) {
+			//var c = QL(String.fromCharCode(84));
+			//b = QL(String.fromCharCode(75));
+			//c = [c(), c()];
+			//c[1] = b();
+			//SL = Number(window[c.join(b())]) || 0
+			SL= Math.floor(Date.now()/1000/3600);
+		}
+
+		b = SL;
+		var d = QL(String.fromCharCode(116))
+		  , c = QL(String.fromCharCode(107))
+		  , d = [d(), d()];
+		d[1] = c();
+		for (var c = cb + d.join(k) + mf, d = [], e = 0, f = 0; f < a.length; f++) {
+			var g = a.charCodeAt(f);
+			128 > g ? d[e++] = g : (2048 > g ? d[e++] = g >> 6 | 192 : (55296 == (g & 64512) && f + 1 < a.length && 56320 == (a.charCodeAt(f + 1) & 64512) ? (g = 65536 + ((g & 1023) << 10) + (a.charCodeAt(++f) & 1023),
+			d[e++] = g >> 18 | 240,
+			d[e++] = g >> 12 & 63 | 128) : d[e++] = g >> 12 | 224,
+			d[e++] = g >> 6 & 63 | 128),
+			d[e++] = g & 63 | 128)
+		}
+		a = b || 0;
+		for (e = 0; e < d.length; e++)
+			a += d[e],
+			a = RL(a, Vb);
+		a = RL(a, Ub);
+		0 > a && (a = (a & 2147483647) + 2147483648);
+		a %= 1E6;
+
+		return c + (a.toString() + dd + (a ^ b))
+	};
+
+	return TL(str);
 }
