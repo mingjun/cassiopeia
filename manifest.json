@@ -8,8 +8,7 @@
 	],
 	"content_scripts": [{
 		"matches": [
-			"http://teamportal/sites/admin/Culinary/Lists/Menu%20Items/Simplified.aspx",
-			"http://teamportal/sites/admin/Culinary/Lists/Kings%20Cross%20Menu%20Item/Simplified.aspx"
+			"http://teamportal/sites/Culinary/SitePages/*"
 		],
 		"css": ["enhancement.css"],
 		"js": ["menu.js"]

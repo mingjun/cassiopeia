@@ -2,15 +2,35 @@
 	this is an enhancement to the casssiopeia menus
 	check it before run to get food
 **/
-
+var itemTab=guessItemTabIndex(location.href);
 startEnhancement();
+
 
 function $(cssSelector) {
 	return document.querySelectorAll(cssSelector);
 }
 
+function guessItemTabIndex(url) {
+	var o = new URL(url);
+	var place = "";
+	// format as: /sites/Culinary/SitePages/Farmers'%20Market.aspx
+	var match = /.+\/(.+)\.aspx/.exec(o.pathname);
+	if (match) {
+		place = match[1];
+	}
+	
+	var index = {
+	"Farmers'%20Market":2,
+	"King's%20Cross": 2,
+	"Mikey's%20Deli": 2,
+	"Cassiopeia": 3
+	}[place];
+	
+	return index || 2; // by default as 2
+}
+
 function startEnhancement(){
-	var node = $("table[summary] td:nth-child(2)");
+	var node = $("table[summary] td:nth-child("+itemTab+")");
 	var menu = [];
 	
 	// collection text in the item.
@@ -116,7 +136,7 @@ function queryGoogleTranslation(params, start, end, callback, errorback) {
 }
 // append chinese translation after the each menu item. 
 function updateMenu(trans, start, end) {
-	var node = $("table[summary] td:nth-child(2)");
+	var node = $("table[summary] td:nth-child("+itemTab+")");
 	for(var i=start;i<end; i++) {
 		var n = node[i];
 		var pair = trans[i - start]; // trans array index start from 0
@@ -124,14 +144,19 @@ function updateMenu(trans, start, end) {
 		var english = (pair[1] || "").trim();
 		var original = normalizeText(unencodeHtmlContent(n));
 		var chinese = (pair[0] || "").trim();
-		
+
+		var clazz = "mxx-cn";
 		if(original.trim() !== english) {
+			clazz = "mxx-cn2";
+		}
+		if (original==="-") {
 			continue;
 		}
+
 		n.innerHTML = "\
 			<div class='mxx-i18n'>\
 				<div class='mxx-en'>" + n.innerHTML + "</div>\
-				<div class='mxx-cn'>" + chinese + "</div>\
+				<div class='"+clazz+"'>" + chinese + "</div>\
 			</div>";
 	}
 }
@@ -143,14 +168,16 @@ function unencodeHtmlContent(node) {
   var children = node.childNodes;
   // Chrome splits innerHTML into many child nodes, each one at most 65536.
   // Whereas FF creates just one single huge child node.
-  for (var i = 0; i < children.length; ++i) {
+  for (var i = 0; i < children.length; ++i) { //TODO FIX Mikey's Deli
     buff.push(children[i].nodeValue);
   }
+  
   return buff.join("");
 }
 
 // some char is not needed to translate. remove them.
 function normalizeText(str) {
+	if (str.length===0) { return "-"}
 	return str.replace(/\s+/g, " ");
 }
 
