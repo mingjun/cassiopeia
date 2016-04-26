@@ -79,7 +79,7 @@ function buildQueryString(menu, start) {
 	var len = defaultParams.length + 3;
 	var endIndex;
 	for(var i=start;i<menu.length;i++) {
-		var m = escape(menu[i]);
+		var m = encodeURIComponent(menu[i]);
 		len += m.length + 3;
 		// the URL length limit is 2048 byte.
 		// other items will be translate in the next query
@@ -97,7 +97,7 @@ function buildQueryString(menu, start) {
 	var str = buff.join("%0A");
 	return {
 		endIndex: endIndex,
-		params: defaultParams + getCheckSumParameter(unescape(str)) + "&q=" +str
+		params: defaultParams + getCheckSumParameter(decodeURIComponent(str)) + "&q=" +str
 	};
 }
 
@@ -168,10 +168,18 @@ function unencodeHtmlContent(node) {
   var children = node.childNodes;
   // Chrome splits innerHTML into many child nodes, each one at most 65536.
   // Whereas FF creates just one single huge child node.
-  for (var i = 0; i < children.length; ++i) { //TODO FIX Mikey's Deli
-    buff.push(children[i].nodeValue);
+  for (var i = 0; i < children.length; ++i) {
+	var nn = children[i];
+	var strValue;
+	switch(nn.nodeType) {
+	case 3: //#text
+		strValue = nn.nodeValue;
+		break;
+	case 1: // tag, recursive call
+		strValue = unencodeHtmlContent(nn);
+	}
+	buff.push(strValue)
   }
-  
   return buff.join("");
 }
 

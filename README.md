@@ -1,9 +1,9 @@
 # Cassiopeia Menu Enhancement
 
-A simple chrome extension for translate [Epic](http://www.epic.com/) Cassiopeia Menu.
+A simple chrome extension for translate [Epic](http://www.epic.com/) Culinary Menu(The famous one Cassiopeia).
 
 ## For Epic stuff only
-This extension is used to translate the Cassiopeia Menu, from Epic internal website.
+This extension is used to translate the Culinary Menu, from Epic internal website.
 
 ## Installation
 follow these steps
@@ -13,5 +13,5 @@ follow these steps
 * locate to the folder you downloaded
 
 ## How to Use
-open [http://guru/](http://guru/), find and click [Cassiopeia Menu](http://teamportal/sites/admin/Culinary/Lists/Menu%20Items/Simplified.aspx)
+open [http://guru/](http://guru/), find and click [Culinary Home](http://teamportal/sites/Culinary/SitePages/Home.aspx)
 
