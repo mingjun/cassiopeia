@@ -14,17 +14,23 @@ function guessItemTabIndex(url) {
 	var o = new URL(url);
 	var place = "";
 	// format as: /sites/Culinary/SitePages/Farmers'%20Market.aspx
-	var match = /.+\/(.+)\.aspx/.exec(o.pathname);
+	var match = /\/sites\/Culinary\/SitePages\/(.+)\.aspx/.exec(o.pathname);
 	if (match) {
 		place = match[1];
 	}
+	console.log("pathname="+o.pathname);
+	console.log("place="+place);
 	
 	var index = {
 	"Farmers'%20Market":2,
-	"King's%20Cross": 2,
+	"King's%20Cross": 4,
 	"Mikey's%20Deli": 2,
-	"Cassiopeia": 3
+	"Cassiopeia": 3,
+	"Coffee": 4,
+	"Chopsticks": 3,
+	"Menu%20Mania": 2
 	}[place];
+	console.log("index="+index);
 	
 	return index || 2; // by default as 2
 }
@@ -73,7 +79,7 @@ function chainQuerys(xhrInfoList) {
 // build the query string for google translation
 function buildQueryString(menu, start) {
 	var defaultParams = 
-		"client=t&sl=en&tl=zh-CN&hl=zh-CN&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&ie=UTF-8&oe=UTF-8&source=btn&ssel=0&tsel=0&kc=0";
+		"client=gtx&sl=en&tl=zh-CN&hl=zh-CN&dt=bd&dt=ex&dt=ld&dt=md&dt=qca&dt=rw&dt=rm&dt=ss&dt=t&dt=at&ie=UTF-8&oe=UTF-8&source=btn&ssel=0&tsel=0&kc=0";
 	
 	var buff = [];
 	var len = defaultParams.length + 3;
@@ -103,7 +109,7 @@ function buildQueryString(menu, start) {
 
 // query the google tranlation web site, to get the chinese text
 function queryGoogleTranslation(params, start, end, callback, errorback) {
-	var baseURL = "https://translate.google.com/translate_a/single"
+	var baseURL = "https://translate.googleapis.com/translate_a/single"
 	var url = baseURL + "?" + params;
 	
 	var xhr = new XMLHttpRequest();
@@ -155,7 +161,7 @@ function updateMenu(trans, start, end) {
 
 		n.innerHTML = "\
 			<div class='mxx-i18n'>\
-				<div class='mxx-en'>" + n.innerHTML + "</div>\
+				<div class='mxx-en"+"'>" + n.innerHTML + "</div>\
 				<div class='"+clazz+"'>" + chinese + "</div>\
 			</div>";
 	}
@@ -186,7 +192,7 @@ function unencodeHtmlContent(node) {
 // some char is not needed to translate. remove them.
 function normalizeText(str) {
 	if (str.length===0) { return "-"}
-	return str.replace(/\s+/g, " ");
+	return str.replace(/[\s\r\n]+/g, " ");
 }
 
 //naiive handler

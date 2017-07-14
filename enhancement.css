@@ -1,11 +1,17 @@
 .mxx-cn {
 	color:red;
 	font-weight: bold;
-	font-size: 150%;
+	font-size: 120%;
+	font-family: "Segoe UI","Microsoft YaHei",simhei,simsun;
 }
 
 .mxx-cn2 {
 	color:orange;
 	font-weight: bold;
-	font-size: 150%;
+	font-size: 120%;
+	font-family: "Segoe UI","Microsoft YaHei",simhei,simsun;
+}
+
+.mxx-fish {
+	background-color: rgb(255, 242, 153);
 }
